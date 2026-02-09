@@ -179,3 +179,19 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+
+# Mac junk
+.DS_Store
+._*
+.Spotlight-V100/
+.Trashes/
+/.fseventsd
+
+# CircuitPython junk
+boot_out.txt
+.metadata_never_index
+System Volume Information/
+
+# Sublime junk
+*.sublime-workspace
