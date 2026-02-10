@@ -6,7 +6,12 @@
 		},
 		{
 			"path": "."
-		}
+		},
+    {
+      "path": ".",
+        "file_exclude_patterns": ".metadata_never_index",
+        "folder_exclude_patterns": [".fseventsd", ".Trashes"]
+    }
 	],
   "settings": {
     "LSP": {
