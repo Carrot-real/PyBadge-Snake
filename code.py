@@ -1,10 +1,23 @@
-import board
-import fourwire
-import stage
+import lib_loader
 import ugame
+import stage 
+from button import button
 
-display = ugame.display
+bank = stage.Bank.from_bmp16("ball.bmp")
+background = stage.Grid(bank, 10, 8)
+ball = stage.Sprite(bank, 1, 8, 8)
+game = stage.Stage(ugame.display, 12)
+game.layers = [ball, background]
+game.render_block()
 
-box_
-game_stage = stage.Stage(display,12)
-stage.render_block(1,1,20,20)
+#
+dx = 2
+while True:
+    ball.update()
+    if button.right:
+        ball.move(ball.x + dx, ball.y)
+        if not 0 < ball.x < 144:
+            ball.x -= 2
+        ball.move(ball.x, ball.y)    
+    game.render_sprites([ball])
+    game.tick()

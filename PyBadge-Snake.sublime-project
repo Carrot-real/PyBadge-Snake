@@ -8,20 +8,31 @@
 			"path": "."
 		}
 	],
-	"settings":
-	{
-		"LSP":
-		{
-			"LSP-pyright":
-			{
-				"settings":
-				{
-					"python.analysis.extraPaths":
-					[
-						"/opt/homebrew/lib/python3.14/site-packages"
-					]
-				}
-			}
-		}
-	}
+  "settings": {
+    "LSP": {
+      "LSP-basedpyright": {
+        "settings": {
+          "python.pythonPath": "/opt/homebrew/bin/python3.14",
+          "basedpyright.analysis.extraPaths": [
+            "/Users/gavynlenyk/Documents/GitHub/test",
+            "/Volumes/CIRCUITPY/lib",
+            "/Volumes/CIRCUITPY"
+          ],
+          "basedpyright.analysis.typeCheckingMode": "basic",
+          // This forces it to dig into the .py files for info
+          "basedpyright.analysis.useLibraryCodeForTypes": true,
+          "basedpyright.analysis.diagnosticSeverityOverrides": {
+            // These stop it from complaining while it's digging
+            "reportUnknownVariableType": "none",
+            "reportUnknownMemberType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportUnknownParameterType": "none",
+            "reportAny": "none",
+            "reportMissingImports": "none"
+          }
+        }
+      }
+    }
+  }
 }
+
