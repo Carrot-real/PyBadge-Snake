@@ -9,7 +9,6 @@ game = stage.Stage(ugame.display, 12)
 game.layers = [ball, background]
 game.render_block()
 
-#
 dx = 2
 while True:
     ball.update()
