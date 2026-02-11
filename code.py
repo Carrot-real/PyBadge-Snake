@@ -16,8 +16,12 @@ while True:
     ball.update()
     if button.right:
         ball.move(ball.x + dx, ball.y)
-        if not 0 < ball.x < 144:
+        if not ball.x <= 144:
             ball.x -= 2
-        ball.move(ball.x, ball.y)    
+    elif button.left:
+        ball.move(ball.x - dx, ball.y)
+        if not ball.x >= 0:
+            ball.x += 2
+    ball.move(ball.x, ball.y)
     game.render_sprites([ball])
     game.tick()

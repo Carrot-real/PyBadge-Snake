@@ -2,17 +2,19 @@
 	"folders":
 	[
 		{
-			"path": "/Volumes/CIRCUITPY"
+			"path": "/Volumes/CIRCUITPY",
+        "file_exclude_patterns": [".metadata_never_index","boot_out.txt"],
+        "folder_exclude_patterns": [".fseventsd", ".Trashes"],
 		},
 		{
-			"path": "."
-		},
+			"path": ".",
+         /*"file_exclude_patterns": ".metadata_never_index",*/
+        "folder_exclude_patterns": [".fseventsd", ".Trashes"],
+    },
     {
-      "path": ".",
-        "file_exclude_patterns": ".metadata_never_index",
-        "folder_exclude_patterns": [".fseventsd", ".Trashes"]
-    }
-	],
+			"path": "/Users/gavynlenyk/Library/Application Support/Sublime Text/Packages/User"
+		},
+  ],
   "settings": {
     "LSP": {
       "LSP-basedpyright": {
@@ -33,11 +35,10 @@
             "reportUnknownArgumentType": "none",
             "reportUnknownParameterType": "none",
             "reportAny": "none",
-            "reportMissingImports": "none"
-          }
-        }
-      }
-    }
-  }
+            "reportMissingImports": "none",
+          },
+        },
+      },
+    },
+  },
 }
-
