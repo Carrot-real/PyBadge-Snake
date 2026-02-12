@@ -1,25 +1,23 @@
-import ugame
-import stage 
-from button import button
+import board
+import time
+import displayio
+import terminalio
+from adafruit_display_shapes.rect import Rect
+from adafruit_display_text import label
+#initializing the display
+display = board.DISPLAY
 
-bank = stage.Bank.from_bmp16("ball.bmp")
-background = stage.Grid(bank, 10, 8)
-ball = stage.Sprite(bank, 1, 8, 8)
-game = stage.Stage(ugame.display, 12)
-game.layers = [ball, background]
-game.render_block()
+text = "test"
+font = terminalio.FONT
+color = 0x0000FF
+#the text label
+text_area = label.Label(font, text=text, color=color)
 
-dx = 2
+text_area.x = 20
+text_area.y = 20
+
+display.root_group = text_area
+
 while True:
-    ball.update()
-    if button.right:
-        ball.move(ball.x + dx, ball.y)
-        if not ball.x <= 144:
-            ball.x -= 2
-    elif button.left:
-        ball.move(ball.x - dx, ball.y)
-        if not ball.x >= 0:
-            ball.x += 2
-    ball.move(ball.x, ball.y)
-    game.render_sprites([ball])
-    game.tick()
+    pass
+
