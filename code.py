@@ -79,11 +79,17 @@ segment.append((9,0))
 for x,y in segment:
     game_tilegrid[x, y] = body_segment_color
 
-def snake(operation):
+def snake(operation,x=None,y=None):
     if operation == "new":
         segment.insert(0,(head_x,head_y))
     if operation == "tail":
         segment.pop()
+    if operation == "update":
+        segment.insert(0,(head_x,head_y))
+        segment.pop()
+    if operation == "seg_xy":
+        segment.insert(0,(x,y))
+
 
 #game group
 game_group = displayio.Group()
