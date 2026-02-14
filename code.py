@@ -5,7 +5,7 @@ import displayio
 import terminalio
 from adafruit_display_text import label
 
-#adding buttons as
+#add keypad as keys
 keys = keypad.ShiftRegisterKeys(
     clock= board.BUTTON_CLOCK,
     data=  board.BUTTON_OUT,
@@ -45,65 +45,116 @@ select="select"
 display = board.DISPLAY
 display.refresh()
 
-#text = "test"
-#font = terminalio.FONT
-#color = 0x0000FF
-#the text label
-#text_area = label.Label(font, text=text, color=color)
-
-#text_area.x = 20
-#text_area.y = 20
-
+#defining the colors in the palette
 palette = displayio.Palette(4)
-palette[0] = 0xFF00FF # red
+palette[0] = 0xFF00FF # magenta
 palette[1] = 0x00FF00 # green
 palette.make_transparent(0)
+body_segment_color = 1
 
-bitmap = displayio.Bitmap(8,24,4)
+#change size of tile
+tile_size = 8
+#set the bitmap size according to tile_size
+bitmap = displayio.Bitmap(tile_size,tile_size*4,4)
 #color palette 1
-for y in range(8,16):
-    for x in range(8):
-        bitmap[x,y] =1
+for y in range(tile_size,20):
+    for x in range(tile_size):
+        bitmap[x,y] = body_segment_color
 
-# make the color at 0 index transparent.
-palette.make_transparent(0)
-
-background = displayio.TileGrid(
+game_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
-    width=24,
-    height=20,
-    tile_width=8,
-    tile_height=8,
+    width=160//tile_size,
+    height=120//tile_size,
+    tile_width=tile_size,
+    tile_height=tile_size,
     default_tile=0,
     x = 0,
-    y = 0,
+    y = 8,
 )
-segment_x = [1,7,3,8]
-tile_index = 1
-segment_y = [3,8,9,8]
+#segments of snake body
+segment = []
 
-for x,y in zip(segment_x, segment_y):
-    background[x, y] = tile_index
+segment.append((9,0))
+for x,y in segment:
+    game_tilegrid[x, y] = body_segment_color
 
-snake_body_group = displayio.Group()
-snake_body_group.append(background)
-#test = list()
-#for i in test:
-group = displayio.Group()
-group.append(snake_body_group)
+#game group
+game_group = displayio.Group()
+game_group.append(game_tilegrid)
 
-#group.append(text_area)
+#root group
+root_group = displayio.Group()
+root_group.append(game_group)
+display.root_group = root_group
 
+#snake directions
+direction_up = False
+direction_down = False
+direction_left = True
+direction_right = False
+#button held
 left_held = False
 right_held = False
+up_held = False
+down_held = False
+#select_held = False
+start_pressed = False
+start_sequence = False
 
-display.root_group = group
+game_speed = 0.7 #speed that game runs at
+last_time = time.monotonic()
 while True:
-    #needs to have "buttons = keys.events.get()"  otherwise the button() will look for buttons even though it does not exist
     buttons = keys.events.get()
     if buttons:
         if button(left):
             left_held = buttons.pressed
+        if button(right):
+            right_held = buttons.pressed
+        if button(up):
+            up_held = buttons.pressed
+        if button(down):
+            down_held = buttons.pressed
+        if button(start):
+            start_pressed = True
+    #checks if moving left or right
+    if direction_left or direction_right == True:
+        #checks if only up or only down held
+        #if both are held they cancel out
+        #NOTE: "^" is XOR
+        if up_held ^ down_held:
+            #sets the snakes direction to the button held
+            direction_up = up_held
+            direction_down = down_held
+            direction_left = False
+            direction_right = False
+    #checks if moving up or down
+    if direction_up or direction_down == True:
+        #checks if only left or only right held
+        #if both are held they cancel out
+        #NOTE: "^" is XOR
+        if left_held ^ right_held:
+            #sets the snakes direction to the button held
+            direction_left = left_held
+            direction_right = right_held
+            direction_up = False
+            direction_down = False
 
+    #checks if start pressed
+    if start_pressed:
+        #only run start sequence once
+        if start_sequence==False:
+            #sets all snake directions to false except for left
+            start_sequence = True
+            direction_up = False
+            direction_down = False
+            direction_right = False
+            direction_left = True
 
+        current_time = time.monotonic()
+        if current_time - last_time > game_speed:
+            last_time = time.monotonic()
+            #game loop
+            print("direction","    up =",direction_up,"    down =",direction_down,"    left =",direction_left,"    right =",direction_right,)
+            print("pressed  ","    up =",up_held,"    down =",down_held,"    left =",left_held,"    right =",right_held,"    select = ",select_held)
+            print("")
