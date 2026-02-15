@@ -1,6 +1,7 @@
 import time
 import board
 import keypad
+import random
 import displayio
 import terminalio
 from adafruit_display_text import label
@@ -73,6 +74,7 @@ game_tilegrid = displayio.TileGrid(
     x = 0,
     y = 16,
 )
+
 #segments of snake body
 segment = []
 head_x = None
@@ -119,12 +121,29 @@ down_held = False
 start_pressed = False
 start_sequence = False
 
-game_speed = 0.7 #speed that game runs at
+#snake start position
 snake(seg_xy,8,6)
 snake(seg_xy,9,6)
 snake(seg_xy,10,6)
 head_x = 10
 head_y = 6
+class randclass:
+    rand_x = random.randint(0,19)
+    rand_y = random.randint(0,13)
+    def x(self):
+        return random.randint(0,19)
+    def y(self):
+        return random.randint(0,13)
+    def xy(self):
+        rand_x = random.randint(0,19)
+        rand_y = random.randint(0,13)
+        return rand_x,rand_y
+rand = randclass()
+
+
+snake(seg_xy,*rand.xy())
+print(rand.xy())
+game_speed = 0.7 #speed that game runs at
 last_time = time.monotonic()
 while True:
     buttons = keys.events.get()
