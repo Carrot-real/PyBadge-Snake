@@ -61,6 +61,7 @@ for y in range(tile_size,20):
     for x in range(tile_size):
         bitmap[x,y] = body_segment_color
 
+#game tile grid
 game_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
@@ -70,32 +71,30 @@ game_tilegrid = displayio.TileGrid(
     tile_height=tile_size,
     default_tile=0,
     x = 0,
-    y = 8,
+    y = 16,
 )
 #segments of snake body
 segment = []
-
-segment.append((9,0))
-for x,y in segment:
-    game_tilegrid[x, y] = body_segment_color
 head_x = None
 head_y = None
 def snake(operation,x=None,y=None):
     if operation == "new":
         segment.insert(0,(head_x,head_y))
     if operation == "tail":
-        segment.pop()
+        oldx,oldy = segment.pop()
+        game_tilegrid[oldx,oldy] = 0
     if operation == "update":
         segment.insert(0,(head_x,head_y))
-        segment.pop()
+        oldx,oldy = segment.pop()
+        game_tilegrid[oldx,oldy] = 0
     if operation == "seg_xy":
         segment.insert(0,(x,y))
     for x,y in segment:
         game_tilegrid[x, y] = body_segment_color
-new = "new"
-tail = "tail"
-update = "update"
-seg_xy = "seg_xy"
+new = "new" #add new segment at head location
+tail = "tail" #removes tail
+update = "update"#adds new segment at head and removes segment at tail
+seg_xy = "seg_xy"#add segment at defined coordinates
 
 #game group
 game_group = displayio.Group()
@@ -121,6 +120,11 @@ start_pressed = False
 start_sequence = False
 
 game_speed = 0.7 #speed that game runs at
+snake(seg_xy,8,6)
+snake(seg_xy,9,6)
+snake(seg_xy,10,6)
+head_x = 10
+head_y = 6
 last_time = time.monotonic()
 while True:
     buttons = keys.events.get()
@@ -136,7 +140,7 @@ while True:
         if button(start):
             start_pressed = True
     #checks if moving left or right
-    if direction_left or direction_right == True:
+    if direction_left or direction_right:
         #checks if only up or only down held
         #if both are held they cancel out
         #NOTE: "^" is XOR
@@ -147,11 +151,11 @@ while True:
             direction_left = False
             direction_right = False
     #checks if moving up or down
-    if direction_up or direction_down == True:
+    if direction_up or direction_down:
         #checks if only left or only right held
         #if both are held they cancel out
         #NOTE: "^" is XOR
-        if left_held ^ right_held:
+        if right_held ^ left_held:
             #sets the snakes direction to the button held
             direction_left = left_held
             direction_right = right_held
@@ -161,18 +165,28 @@ while True:
     #checks if start pressed
     if start_pressed:
         #only run start sequence once
-        if start_sequence==False:
+        if start_sequence!= True:
             #sets all snake directions to false except for left
             start_sequence = True
             direction_up = False
             direction_down = False
-            direction_right = False
-            direction_left = True
+            direction_right = True
+            direction_left =False
 
         current_time = time.monotonic()
         if current_time - last_time > game_speed:
             last_time = time.monotonic()
             #game loop
-            print("direction","    up =",direction_up,"    down =",direction_down,"    left =",direction_left,"    right =",direction_right,)
-            print("pressed  ","    up =",up_held,"    down =",down_held,"    left =",left_held,"    right =",right_held,"    select = ",select_held)
+            if direction_left:
+                head_x -= 1
+            if direction_right:
+                head_x += 1
+            if direction_up:
+                head_y -= 1
+            if direction_down:
+                head_y += 1
+            snake(update)
+
+            print("direction","    up =",direction_up,"    down =",direction_down,"    left =",direction_left,"    right =",direction_right)
+            print("pressed  ","    up =",up_held,"    down =",down_held,"    left =",left_held,"    right =",right_held)
             print("")
