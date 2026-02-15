@@ -136,36 +136,37 @@ def snake(operation,x=None,y=None):
         game_tilegrid[x, y] = segment_color
 new = "new" #add new segment at head location
 tail = "tail" #removes tail
-remove = "remove"
 update = "update"#adds new segment at head and removes segment at tail
 seg_xy = "seg_xy"#add segment at defined coordinates
-
-apple = []
+remove = "remove"#removes apple
+apples = []
 apple_xy = None
-def apples(operation,x=None,y=None):
+def apple(operation,x=None,y=None):
     if operation == "new":
-        apple.insert(0,rand.xy())
+        apples.insert(0,rand.xy())
     if operation == "remove":
-        oldx,oldy = apple.pop()
-        apple_tilegrid[oldx,oldy] = 0
+        if apples:
+            oldx,oldy = apples.pop()
+            apple_tilegrid[oldx,oldy] = 0
     if operation == "update":
-        apple.insert(0,rand.xy())
-        oldx,oldy = apple.pop(-1)
-        game_tilegrid[oldx,oldy] = 0
+        apples.insert(0,rand.xy())
+        oldx,oldy = apples.pop()
+        apple_tilegrid[oldx,oldy] = 0
     if operation == "seg_xy":
-        apple.insert(0,(x,y))
-    for x,y in apple:
+        apples.insert(0,(x,y))
+    for x,y in apples:
         apple_tilegrid[x, y] = apple_color
         global apple_xy
         apple_xy = x,y
-    print(apple_xy)
+    print("apple is located at",apple_xy)
+
 
 
 
 #game group
 game_group = displayio.Group()
-game_group.append(game_tilegrid)
 game_group.append(apple_tilegrid)
+game_group.append(game_tilegrid)
 
 #root group
 root_group = displayio.Group()
@@ -185,18 +186,17 @@ down_held = False
 #select_held = False
 start_pressed = False
 start_sequence = False
+#initialize game variables
+if True:
+    #snake start position
+    head_x = 10
+    head_y = 6
+    snake(seg_xy,8,6)
+    snake(seg_xy,9,6)
+    snake(new)
+    #speed that game runs at
+    game_speed = 0.7
 
-#snake start position
-snake(seg_xy,8,6)
-snake(seg_xy,9,6)
-snake(seg_xy,10,6)
-head_x = 10
-head_y = 6
-apples(new)
-
-
-print(rand.xy())
-game_speed = 0.7 #speed that game runs at
 last_time = time.monotonic()
 while True:
     buttons = keys.events.get()
@@ -217,26 +217,32 @@ while True:
         #if both are held they cancel out
         #NOTE: "^" is XOR
         if up_held ^ down_held:
-            #sets the snakes direction to the button held
-            direction_up = up_held
-            direction_down = down_held
-            direction_left = False
-            direction_right = False
+            #input cool down to prevent from quickly pressing buttons to do a 180
+            if input_cooldown == False:
+                #sets the snakes direction to the button held and set cool down
+                direction_up = up_held
+                direction_down = down_held
+                direction_left = False
+                direction_right = False
+                input_cooldown = True
     #checks if moving up or down
     if direction_up or direction_down:
         #checks if only left or only right held
         #if both are held they cancel out
         #NOTE: "^" is XOR
         if right_held ^ left_held:
-            #sets the snakes direction to the button held
-            direction_left = left_held
-            direction_right = right_held
-            direction_up = False
-            direction_down = False
+            #input cool down to prevent from quickly pressing buttons to do a 180
+            if input_cooldown == False:
+                #sets the snakes direction to the button held and set cool down
+                direction_left = left_held
+                direction_right = right_held
+                direction_up = False
+                direction_down = False
+                input_cooldown = True
 
     #checks if start pressed
     if start_pressed:
-        #only run start sequence once
+        #only run start sequence once when start pressed
         if start_sequence!= True:
             #sets all snake directions to false except for left
             start_sequence = True
@@ -244,6 +250,8 @@ while True:
             direction_down = False
             direction_right = True
             direction_left =False
+            apple(new)
+
 
         current_time = time.monotonic()
         if current_time - last_time > game_speed:
@@ -257,13 +265,16 @@ while True:
                 head_y -= 1
             if direction_down:
                 head_y += 1
-            snake(update)
-            for xy in set(apple) & set(segment):
-                if xy !=None:
-                    snake(new)
-                    apples(update)
-                    apples(remove)
-                print(xy)
+            input_cooldown= False
+            snake(new)
+            apple_snake = any(xy in apples for xy in segment)
+            if apple_snake:
+                apple(update)
+            else:
+                snake(tail)
+
+
+
             #print(apple,segment)
             #print("direction","    up =",direction_up,"    down =",direction_down,"    left =",direction_left,"    right =",direction_right)
             #print("pressed  ","    up =",up_held,"    down =",down_held,"    left =",left_held,"    right =",right_held)
