@@ -16,23 +16,50 @@ keys = keypad.ShiftRegisterKeys(
     interval=0.01,
 )
 #button(a, b, start, select, up, down, left, right)
-def button(button_type):
-    if button_type == "b":
+class buttonhandler:
+    @property
+    def b(self):
         return buttons.key_number==0
-    if button_type == "a":
+    @property
+    def a(self):
         return buttons.key_number==1
-    if button_type == "start":
+    @property
+    def start(self):
         return buttons.key_number==2
-    if button_type == "select":
+    @property
+    def select(self):
         return buttons.key_number==3
-    if button_type == "right":
+    @property
+    def right(self):
         return buttons.key_number==4
-    if button_type == "down":
+    @property
+    def down(self):
         return buttons.key_number==5
-    if button_type == "up":
+    @property
+    def up(self):
         return buttons.key_number==6
-    if button_type == "left":
+    @property
+    def left(self):
         return buttons.key_number==7
+button=buttonhandler()
+#def button(button_type):
+    #buttons = keys.events.get()
+    #if button_type == "b":
+        #return buttons.key_number==0
+    #if button_type == "a":
+        #return buttons.key_number==1
+    #if button_type == "start":
+        #return buttons.key_number==2
+    #if button_type == "select":
+        #return buttons.key_number==3
+    #if button_type == "right":
+        #return buttons.key_number==4
+    #if button_type == "down":
+        #return buttons.key_number==5
+    #if button_type == "up":
+        #return buttons.key_number==6
+    #if button_type == "left":
+        #return buttons.key_number==7
 a="a"
 b="b"
 up="up"
@@ -148,15 +175,15 @@ last_time = time.monotonic()
 while True:
     buttons = keys.events.get()
     if buttons:
-        if button(left):
+        if button.left:
             left_held = buttons.pressed
-        if button(right):
+        if button.right:
             right_held = buttons.pressed
-        if button(up):
+        if button.up:
             up_held = buttons.pressed
-        if button(down):
+        if button.down:
             down_held = buttons.pressed
-        if button(start):
+        if button.start:
             start_pressed = True
     #checks if moving left or right
     if direction_left or direction_right:
