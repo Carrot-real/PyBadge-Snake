@@ -4,18 +4,19 @@ import keypad
 import random
 import displayio
 import terminalio
+import adafruit_imageload
 from adafruit_display_text import label
 
 class randclass:
-    rand_x = random.randint(0,19)
-    rand_y = random.randint(0,13)
+    rand_x = random.randint(0,18)
+    rand_y = random.randint(0,12)
     def x(self):
-        return random.randint(0,19)
+        return random.randint(0,18)
     def y(self):
-        return random.randint(0,13)
+        return random.randint(0,12)
     def xy(self):
-        rand_x = random.randint(0,19)
-        rand_y = random.randint(0,13)
+        rand_x = random.randint(0,18)
+        rand_y = random.randint(0,12)
         return rand_x,rand_y
 rand = randclass()
 
@@ -68,59 +69,74 @@ Returns button key number from keys.events.get()
 display = board.DISPLAY
 display.refresh()
 
+
 #defining the colors in the palette
-palette = displayio.Palette(4)
+palette = displayio.Palette(6)
 palette[0] = 0xFF00FF #magenta
 palette[1] = 0x00FF00 #green
-palette[2] = 0xFF0000 #red
+palette[2] = 0xE7471D #red
+palette[3] = 0x652f8f #Blinka purple
 palette.make_transparent(0)
-segment_color = 1
+segment_color = 3
 apple_color = 2
 
 #set size of tile
 tile_size = 8
+#8 = normal size
+#10 = big size
 
 #set the bitmap size according to tile_size
-bitmap = displayio.Bitmap(tile_size,tile_size*4,4)
-#color palette 1
+bitmap = displayio.Bitmap(tile_size,tile_size*4,6)
+#color palette
 for y in range(tile_size,2*tile_size):
     for x in range(tile_size):
         bitmap[x,y] = segment_color
-
 for y in range(2*tile_size,3*tile_size):
     for x in range(tile_size):
         bitmap[x,y] = apple_color
+#round apple corners
+bitmap[0,16] = 0
+bitmap[7,16] = 0
+bitmap[0,23] = 0
+bitmap[7,23] = 0
+for y in range(3*tile_size,4*tile_size):
+    for x in range(tile_size):
+        bitmap[x,y] = 3
 
-#game tile grid
+background, background_palette = adafruit_imageload.load(
+    "background.bmp", bitmap=displayio.Bitmap, palette=displayio.Palette)
+
+background_tilegrid = displayio.TileGrid(
+    background,pixel_shader = background_palette)  # pyright: ignore[reportArgumentType]
 game_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
-    width=160//tile_size,
-    height=120//tile_size,
+    width=(160-tile_size)//tile_size,
+    height=(120-tile_size*2)//tile_size,
     tile_width=tile_size,
     tile_height=tile_size,
     default_tile=0,
-    x = 0,
-    y = 16,
-)
+    x = tile_size//4,
+    y = tile_size*2+tile_size//2,)
 apple_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
-    width=160//tile_size,
-    height=120//tile_size,
+    width=(160-tile_size)//tile_size,
+    height=(120-tile_size*2)//tile_size,
     tile_width=tile_size,
     tile_height=tile_size,
     default_tile=0,
-    x = 0,
-    y = 16,
-)
+    x = tile_size//4,
+    y = tile_size*2+tile_size//2,)
 
-#segments of snake body
+#snake and body logic
 segment = []
-
+apples = []
 head_x = None
 head_y = None
+apple_xy = None
 def snake(operation,x=None,y=None):
+    global last_color
     if operation == "new":
         segment.insert(0,(head_x,head_y))
     if operation == "tail":
@@ -134,13 +150,6 @@ def snake(operation,x=None,y=None):
         segment.insert(0,(x,y))
     for x,y in segment:
         game_tilegrid[x, y] = segment_color
-new = "new" #add new segment at head location
-tail = "tail" #removes tail
-update = "update"#adds new segment at head and removes segment at tail
-seg_xy = "seg_xy"#add segment at defined coordinates
-remove = "remove"#removes apple
-apples = []
-apple_xy = None
 def apple(operation,x=None,y=None):
     if operation == "new":
         apples.insert(0,rand.xy())
@@ -159,9 +168,11 @@ def apple(operation,x=None,y=None):
         global apple_xy
         apple_xy = x,y
     print("apple is located at",apple_xy)
-
-
-
+new = "new" #add new segment at head location
+tail = "tail" #removes tail
+update = "update"#adds new segment at head and removes segment at tail
+seg_xy = "seg_xy"#add segment at defined coordinates
+remove = "remove"#removes apple
 
 #game group
 game_group = displayio.Group()
@@ -170,9 +181,11 @@ game_group.append(game_tilegrid)
 
 #root group
 root_group = displayio.Group()
+root_group.append(background_tilegrid)
 root_group.append(game_group)
 display.root_group = root_group
 
+input_cooldown = False
 #snake directions
 direction_up = False
 direction_down = False
@@ -195,8 +208,20 @@ if True:
     snake(seg_xy,9,6)
     snake(new)
     #speed that game runs at
-    game_speed = 0.7
-
+    speed_level = 4
+    game_speed = -0.1*speed_level + 1.1
+        #speed_level = game_speed
+        #         1  =  1
+        #         2  = 0.9
+        #         3  = 0.8
+        #         4  = 0.7
+        #         5  = 0.6
+        #         6  = 0.5
+        #         7  = 0.4
+        #         8  = 0.3
+        #         9  = 0.2
+        #         10 = 0.1
+score = 0
 last_time = time.monotonic()
 while True:
     buttons = keys.events.get()
@@ -251,8 +276,6 @@ while True:
             direction_right = True
             direction_left =False
             apple(new)
-
-
         current_time = time.monotonic()
         if current_time - last_time > game_speed:
             last_time = time.monotonic()
@@ -265,17 +288,15 @@ while True:
                 head_y -= 1
             if direction_down:
                 head_y += 1
+            #if 0 >= head_x <=
             input_cooldown= False
             snake(new)
             apple_snake = any(xy in apples for xy in segment)
             if apple_snake:
                 apple(update)
+                score += 1
             else:
                 snake(tail)
 
 
 
-            #print(apple,segment)
-            #print("direction","    up =",direction_up,"    down =",direction_down,"    left =",direction_left,"    right =",direction_right)
-            #print("pressed  ","    up =",up_held,"    down =",down_held,"    left =",left_held,"    right =",right_held)
-            #print("")
