@@ -1,5 +1,6 @@
 import time
 import board
+board.DISPLAY.root_group = None
 import keypad
 import random
 import displayio
@@ -73,11 +74,13 @@ display.refresh()
 #defining the colors in the palette
 palette = displayio.Palette(6)
 palette[0] = 0xFF00FF #magenta
-palette[1] = 0x00FF00 #green
+palette[1] = 0x652F8F #snake
 palette[2] = 0xE7471D #red
-palette[3] = 0x652f8f #Blinka purple
+palette[3] = 0x000000 #black
+palette[4] = 0xFFFFFF #white
+#0x652F8F Blinka purple
 palette.make_transparent(0)
-segment_color = 3
+segment_color = 1
 apple_color = 2
 
 #set size of tile
@@ -95,19 +98,147 @@ for y in range(2*tile_size,3*tile_size):
     for x in range(tile_size):
         bitmap[x,y] = apple_color
 #round apple corners
-bitmap[0,16] = 0
-bitmap[7,16] = 0
-bitmap[0,23] = 0
-bitmap[7,23] = 0
+bitmap[0,tile_size*2] = 0
+bitmap[tile_size-1,tile_size*2] = 0
+bitmap[0,tile_size*3-1] = 0
+bitmap[tile_size-1,tile_size*3-1] = 0
 for y in range(3*tile_size,4*tile_size):
     for x in range(tile_size):
         bitmap[x,y] = 3
 
-background, background_palette = adafruit_imageload.load(
-    "background.bmp", bitmap=displayio.Bitmap, palette=displayio.Palette)
-
+head_bitmap, head_palette = adafruit_imageload.load(
+    "assets/tile_size_8/snake_head.bmp", bitmap=displayio.Bitmap, palette=displayio.Palette)
+head_palette.make_transparent(0)
+background_bitmap, background_palette = adafruit_imageload.load(
+    "assets/tile_size_8/background.bmp", bitmap=displayio.Bitmap, palette=displayio.Palette)
 background_tilegrid = displayio.TileGrid(
-    background,pixel_shader = background_palette)  # pyright: ignore[reportArgumentType]
+    background_bitmap,
+    pixel_shader = background_palette,
+    width= 160//tile_size,
+    height=128//tile_size,
+    tile_height=2,
+    tile_width=2,
+    default_tile= 5)
+background = displayio.Group(scale=4)
+background.append(background_tilegrid)
+for y in range(2):
+    for x in range(20):
+        background_tilegrid[x,y]=0
+for x in range(0,20,2):
+    background_tilegrid[x,2]=5
+for x in range(0,20,2):
+    background_tilegrid[x+1,2]=6
+for x in range(0,20,2):
+    background_tilegrid[x,15]=17
+for x in range(0,20,2):
+    background_tilegrid[x+1,15]=18
+for y in range(3,15,2):
+    background_tilegrid[0,y]=12
+for y in range(3,15,2):
+    background_tilegrid[0,y+1]=8
+for y in range(3,15,2):
+    background_tilegrid[19,y]=15
+for y in range(3,15,2):
+    background_tilegrid[19,y+1]=11
+for y in range(3,15):
+    for x in range(1,19):
+        if (x + y) % 2==0:
+            background_tilegrid[x,y]=10
+        else:
+            background_tilegrid[x,y]=9
+background_tilegrid[0,2]=4
+background_tilegrid[19,2]=7
+background_tilegrid[0,15]=16
+background_tilegrid[19,15]=19
+day = "day"
+night = "night"
+snow = "snow"
+lava = "lava"
+desert = "desert"
+forest = "forest"
+sea = "sea"
+space = "space"
+basic = "basic"
+custom = "custom"
+random_theme = "random"
+random_option = None
+options_list = [day,night,snow,lava,desert,forest,sea,space,basic]
+def background_color(theme,part=None,hex=None):
+    if theme == "day":
+        background_palette[0] = 0x4A752C #score bar
+        background_palette[1] = 0x568A34 #border
+        background_palette[2] = 0xA2D148 #dark in checkerboard
+        background_palette[3] = 0xAAD750 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "night":
+        background_palette[0] = 0x262428 #score bar
+        background_palette[1] = 0x2C2730 #border
+        background_palette[2] = 0x443E4C #dark in checkerboard
+        background_palette[3] = 0x494351 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "snow":
+        background_palette[0] = 0x758A8A #score bar
+        background_palette[1] = 0x879fA1 #border
+        background_palette[2] = 0xD2E4E5 #dark in checkerboard
+        background_palette[3] = 0xDFEBED #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "lava":
+        background_palette[0] = 0x762E2E #score bar
+        background_palette[1] = 0xA33F3D #border
+        background_palette[2] = 0x673231 #dark in checkerboard
+        background_palette[3] = 0x6E3535 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "desert":
+        background_palette[0] = 0x725E1D #score bar
+        background_palette[1] = 0x977B26 #border
+        background_palette[2] = 0xECCE79 #dark in checkerboard
+        background_palette[3] = 0xF2D78C #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "forest":
+        background_palette[0] = 0x202823 #score bar
+        background_palette[1] = 0x253227 #border
+        background_palette[2] = 0x3B4F3F #dark in checkerboard
+        background_palette[3] = 0x3F5543 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "sea":
+        background_palette[0] = 0x1E457C #score bar
+        background_palette[1] = 0x275BA5 #border
+        background_palette[2] = 0xA3C5F5 #dark in checkerboard
+        background_palette[3] = 0xB4D0F9 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "space":
+        background_palette[0] = 0x442A6F #score bar
+        background_palette[1] = 0x604096 #border
+        background_palette[2] = 0x3D285D #dark in checkerboard
+        background_palette[3] = 0x432C68 #light in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "basic":
+        background_palette[0] = 0x101010 #score bar
+        background_palette[1] = 0x101010 #border
+        background_palette[2] = 0x000000 #dark in checkerboard
+        background_palette[3] = 0x000000 #also dark in checkerboard
+        print("Theme selected:",theme)
+    elif theme == "custom":
+        if part == "score":
+            background_palette[0] = hex
+        if part == "border":
+            background_palette[1] = hex
+        if part == "grid":
+            background_palette[2] =  hex
+            #brighten the the secondary tiles
+            r = (hex >> 16) & 0xFF
+            g = (hex >> 8) & 0xFF
+            b = hex & 0xFF
+            f = 1.05
+            r2, g2, b2 = [min(int(c * f), 255) for c in (r, g, b)]
+            background_palette[3] = (r2 << 16) + (g2 << 8) + b2
+    elif theme == "random":
+        random_option = random.choice(options_list)
+        print("Random theme")
+        background_color(random_option)
+
+background_color(random_theme)
+
 game_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
@@ -116,7 +247,7 @@ game_tilegrid = displayio.TileGrid(
     tile_width=tile_size,
     tile_height=tile_size,
     default_tile=0,
-    x = tile_size//4,
+    x = tile_size//2,
     y = tile_size*2+tile_size//2,)
 apple_tilegrid = displayio.TileGrid(
     bitmap,
@@ -126,7 +257,17 @@ apple_tilegrid = displayio.TileGrid(
     tile_width=tile_size,
     tile_height=tile_size,
     default_tile=0,
-    x = tile_size//4,
+    x = tile_size//2,
+    y = tile_size*2+tile_size//2,)
+head_tilegrid = displayio.TileGrid(
+    head_bitmap,
+    pixel_shader= head_palette,
+    width=(160-tile_size)//tile_size,
+    height=(120-tile_size*2)//tile_size,
+    tile_width=tile_size,
+    tile_height=tile_size,
+    default_tile=4,
+    x = tile_size//2,
     y = tile_size*2+tile_size//2,)
 
 #snake and body logic
@@ -178,11 +319,13 @@ remove = "remove"#removes apple
 game_group = displayio.Group()
 game_group.append(apple_tilegrid)
 game_group.append(game_tilegrid)
+lose_group = displayio.Group()
 
 #root group
 root_group = displayio.Group()
-root_group.append(background_tilegrid)
+root_group.append(background)
 root_group.append(game_group)
+root_group.append(head_tilegrid)
 display.root_group = root_group
 
 input_cooldown = False
@@ -199,16 +342,19 @@ down_held = False
 #select_held = False
 start_pressed = False
 start_sequence = False
+
 #initialize game variables
 if True:
     #snake start position
+    old_head_x = 10
+    old_head_y = 6
     head_x = 10
     head_y = 6
     snake(seg_xy,8,6)
     snake(seg_xy,9,6)
     snake(new)
     #speed that game runs at
-    speed_level = 4
+    speed_level = 1
     game_speed = -0.1*speed_level + 1.1
         #speed_level = game_speed
         #         1  =  1
@@ -221,6 +367,7 @@ if True:
         #         8  = 0.3
         #         9  = 0.2
         #         10 = 0.1
+lose = False
 score = 0
 last_time = time.monotonic()
 while True:
@@ -276,27 +423,55 @@ while True:
             direction_right = True
             direction_left =False
             apple(new)
-        current_time = time.monotonic()
-        if current_time - last_time > game_speed:
-            last_time = time.monotonic()
-            #game loop
-            if direction_left:
-                head_x -= 1
-            if direction_right:
-                head_x += 1
-            if direction_up:
-                head_y -= 1
-            if direction_down:
-                head_y += 1
-            #if 0 >= head_x <=
-            input_cooldown= False
-            snake(new)
-            apple_snake = any(xy in apples for xy in segment)
-            if apple_snake:
-                apple(update)
-                score += 1
-            else:
-                snake(tail)
+        if lose == False:
+            current_time = time.monotonic()
+            if current_time - last_time > game_speed:
+                last_time = time.monotonic()
+                #game loop
+                if direction_left:
+                    old_head_x = head_x
+                    old_head_y = head_y
+                    head_x -= 1
+                if direction_right:
+                    old_head_x = head_x
+                    old_head_y = head_y
+                    head_x += 1
+                if direction_up:
+                    old_head_x = head_x
+                    old_head_y = head_y
+                    head_y -= 1
+                if direction_down:
+                    old_head_x = head_x
+                    old_head_y = head_y
+                    head_y += 1
+
+                input_cooldown= False
+                if 0 > head_x or head_x>= 19 or 0 > head_y or head_y >= 13:
+                    lose = True
+                    print("lose =",lose)
+                    loseword =f"lose {lose}"
+                    lose_text = label.Label(terminalio.FONT,text =loseword)
+                    root_group.append(lose_text)
+                else:
+                    snake(new)
+                    if direction_left:
+                        head_tilegrid[head_x,head_y] =2
+                    if direction_right:
+                        head_tilegrid[head_x,head_y] =3
+                    if direction_up:
+                        head_tilegrid[head_x,head_y] =0
+                    if direction_down:
+                        print(True)
+                        head_tilegrid[head_x,head_y] =1
+                    head_tilegrid[old_head_x,old_head_y] =4
+                    apple_snake = any(xy in apples for xy in segment)
+                    if apple_snake:
+                        apple(update)
+                        score += 1
+                    else:
+                        snake(tail)
+
+
 
 
 
