@@ -13,8 +13,9 @@ import audioio, synthio #for the buzzer
 import displayio, digitalio
 import supervisor, microcontroller
 import adafruit_imageload
-from adafruit_display_text import label
+import gc
 from adafruit_bitmap_font import bitmap_font
+from adafruit_display_text import bitmap_label
 t = mark("Load Modules", t)
 
 #-------Initializing Display-------
@@ -30,6 +31,8 @@ t = mark("Initializing the Display", t)
 
 #-------Load Font-------
 font = bitmap_font.load_font("fonts/font.pcf")
+glyphs = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ: "
+font.load_glyphs(glyphs)
 t = mark("Font Load", t)
 
 #-------Initialize Speaker-------
@@ -237,6 +240,8 @@ random_theme = "random"
 random_option = None
 backgrounds_list = [day,night,snow,lava,desert,forest,sea,space,basic]
 background_index = 0
+next_background_index = 8
+last_background_index = 1
 current_theme= None
 #---background_color Function---
 def background_color(theme,part=None,hex=None):
@@ -309,34 +314,36 @@ background_color(day)
 t = mark("    background_color Function", t)
 
 #-------Score and Highscore-------
-high_score_text = label.Label(
+high_score_text = bitmap_label.Label(
     font,
     text=str(high_score),
     x=68,
     y=10,
-    scale=3)
-score_text = label.Label(
+    scale=3,
+    max_characters=3)
+score_text = bitmap_label.Label(
     font,
     text=str(score),
     x=19,
     y=10,
-    scale=3)
+    scale=3,
+    max_characters=3)
 t = mark("Add Score and High Score Numbers to Score Bar", t)
 
 #--------Lose screen--------
-lose_text = label.Label(
+lose_text = bitmap_label.Label(
     font,
     text="    ",
     scale= 4)
-lose_text_score = label.Label(
+lose_text_score = bitmap_label.Label(
     font,
     text="    ",
     scale= 3)
-lose_text_high_score = label.Label(
+lose_text_high_score = bitmap_label.Label(
     font,
     text="    ",
     scale= 2)
-lose_text_tip = label.Label(
+lose_text_tip = bitmap_label.Label(
     font,
     text="    ",
     scale= 1)
@@ -366,27 +373,72 @@ def show_lose_screen():
     lose_group.hidden = False
 t = mark("    Label Positioning and Grouping", t)
 
+
+print("Settings")
+setting_text = bitmap_label.Label(
+    font,
+    text="Settings",
+    scale= 3)
+setting_current_text = bitmap_label.Label(
+    font,
+    text="Background",
+    scale= 3)
+setting_current_option_text = bitmap_label.Label(
+    font,
+    text="Day",
+    scale= 3,)
+setting_next_option_text = bitmap_label.Label(
+    font,
+    text="Basic",
+    scale= 2)
+setting_last_option_text = bitmap_label.Label(
+    font,
+    text="Night",
+    scale= 2)
+t = mark("    Text Label Creation", t)
+setting_text.anchor_point = (0.5,0.5)
+setting_text.anchored_position = (80,10)
+setting_current_text.anchor_point = (0.5,0.5)
+setting_current_text.anchored_position = (80,30)
+setting_current_option_text.anchor_point = (0.5,0.5)
+setting_current_option_text.anchored_position = (80,70)
+setting_next_option_text.anchor_point = (0.5,0.5)
+setting_next_option_text.anchored_position = (80,55)
+setting_last_option_text.anchor_point = (0.5,0.5)
+setting_last_option_text.anchored_position = (80,85)
+setting_group = displayio.Group()
+setting_group.append(setting_text)
+setting_group.append(setting_current_text)
+setting_group.append(setting_current_option_text)
+setting_group.append(setting_next_option_text)
+setting_group.append(setting_last_option_text)
+
+
+
+t = mark("    Label Positioning and Grouping", t)
+
 #--------tilegrids for Game, Apples, Head--------
 game_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
-    width=(160-tile_size)//tile_size,
-    height=(120-tile_size*2)//tile_size,
-    tile_width=tile_size,
-    tile_height=tile_size,
+    width=20,
+    height=14,
+    tile_width=1,
+    tile_height=1,
     default_tile=0,
-    x = tile_size//2,
-    y = tile_size*2+tile_size//2,)
+    #x = tile_size//2//8,
+    y = 2,
+    )
 shadow_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
-    width=(160-tile_size)//tile_size,
-    height=(120-tile_size*2)//tile_size,
-    tile_width=tile_size,
-    tile_height=tile_size,
-    default_tile=0,
-    x = tile_size//2+1,
-    y = tile_size*2+tile_size//2+2)
+    width=20,
+    height=14,
+    tile_width=1,
+    tile_height=1,
+    default_tile=9,
+    x =0,
+    y = 2)
 apple_tilegrid = displayio.TileGrid(
     bitmap,
     pixel_shader= palette,
@@ -411,15 +463,16 @@ t = mark("Creating tilegrids", t)
 
 #--------Snake, Body, and Apple Logic--------
 segment = []
-apples = []
+apples = None
 head_x = None
 head_y = None
 apple_xy = None
-snakecolor = 5
+snakecolor = 7
 def snake(operation,x=None,y=None):
-    global segment_color
     if operation == "new":
         segment.insert(0,(head_x,head_y))
+        game_tilegrid[head_x, head_y] = 64
+        shadow_tilegrid[head_x, head_y] = 192
     if operation == "tail":
         oldx,oldy = segment.pop()
         game_tilegrid[oldx,oldy] = 0
@@ -429,52 +482,55 @@ def snake(operation,x=None,y=None):
         oldx,oldy = segment.pop()
         game_tilegrid[oldx,oldy] = 0
         shadow_tilegrid[oldx, oldy] = 0
+        game_tilegrid[head_x, head_y] = 64
+        shadow_tilegrid[head_x, head_y] = 192
     if operation == "seg_xy":
         segment.insert(0,(x,y))
-    for x,y in segment:
-        game_tilegrid[x, y] = segment_color
-        shadow_tilegrid[x, y] = shadow_color
-
+        game_tilegrid[x,y] = 64
+        shadow_tilegrid[x,y] = 192
 def snake_color():
         if snakecolor == 0:
-            palette[1] = 0xFF0000#red
+            palette[1] = 0xFF0000#Red
         elif snakecolor == 1:
-            palette[1] = 0xFF7300#orange
+            palette[1] = 0xFF8000#Orange
         elif snakecolor == 2:
-            palette[1] = 0xFFED29#yellow
+            palette[1] = 0xFFFF00#Yellow
         elif snakecolor == 3:
-            palette[1] = 0x008000#green
+            palette[1] = 0x00FF00#Pure Green
         elif snakecolor == 4:
-            palette[1] = 0x4169E1#blue
+            palette[1] = 0x009000#Green
         elif snakecolor == 5:
-            palette[1] = 0x652F8F#blinka
+            palette[1] = 0x0000FF#Pure Blue
         elif snakecolor == 6:
-            palette[1] = 0xFFFFFF
+            palette[1] = 0x4169E1#Blue
         elif snakecolor == 7:
-            palette[1] = 0x000000
-
-
-
-
-
-
+            palette[1] = 0x652F8F#Blinka Purple
+        elif snakecolor == 8:
+            palette[1] = 0xFF00FF#Pink
+        elif snakecolor == 9:
+            palette[1] = 0xFFFFFF#White
+        elif snakecolor == 10:
+            palette[1] = 0x000000#Black
 def apple(operation,x=None,y=None):
+    global apple_xy, apples
     if operation == "new":
-        apples.insert(0,rand.xy())
+        apples = rand.xy()
+        apple_tilegrid[apples[0], apples[1]] = apple_color
+        apple_xy = apples
     if operation == "remove":
-        if apples:
-            oldx,oldy = apples.pop()
-            apple_tilegrid[oldx,oldy] = 0
+        apple_tilegrid[apples[0], apples[1]] = 0
+        apples = None
     if operation == "update":
-        apples.insert(0,rand.xy())
-        oldx,oldy = apples.pop()
-        apple_tilegrid[oldx,oldy] = 0
+        if apples:
+            apple_tilegrid[apples[0], apples[1]] = 0
+        apples = None
+        apples = rand.xy()
+        apple_tilegrid[apples[0], apples[1]] = apple_color
+        apple_xy = apples
     if operation == "seg_xy":
-        apples.insert(0,(x,y))
-    for x,y in apples:
+        apples = rand.xy()
         apple_tilegrid[x, y] = apple_color
-        global apple_xy
-        apple_xy = x,y
+        apple_xy = apples
     print("apple is located at",apple_xy)
 new = "new" #add new segment at head location
 tail = "tail" #removes tail
@@ -485,23 +541,36 @@ t = mark("Snake, Body, and Apple Logic", t)
 
 #-------Put the tilegrids, Text Labels, and Sub-Groups into root_group-------
 #---Game Group---
+
+
 game_group = displayio.Group()
 game_group.append(apple_tilegrid)
-game_group.append(shadow_tilegrid)
-game_group.append(game_tilegrid)
+
+shadow_group = displayio.Group(x=5,y=6,scale=8)
+shadow_group.append(shadow_tilegrid)
+snake_group = displayio.Group(x=4,y=4,scale=8)
+snake_group.append(game_tilegrid)
+
+game_group.append(shadow_group)
+game_group.append(snake_group)
 game_group.append(head_tilegrid)
+
+
+
 #---background Group---
 foreground_group = displayio.Group()
 foreground_group.append(foreground)
-foreground_group.append(score_tilegrid)
-foreground_group.append(high_score_text)
-foreground_group.append(score_text)
+
+
 #---Root Group---
 root_group.append(background)
 root_group.append(game_group)
+
 root_group.append(foreground_group)
+root_group.append(setting_group)
 root_group.append(lose_group)
 display.root_group = root_group
+gc.collect()
 t = mark("Grouping", t)
 
 #-------Initializing Input Detection-------
@@ -532,7 +601,7 @@ if True:
         snake(seg_xy,x,head_y)
     pre_game = True
     #---speed---
-    speed_level =5
+    speed_level =3
     menu_speed = 0.3
     game_speed =  0.65 * (speed_level ** -0.77)
         #speed_level = game_speed
@@ -547,19 +616,20 @@ if True:
         #         9  = 0.119714
         #         10 = 0.110386
 t = mark("Game Variables", t)
-current_setting = ["background","snake_color"]
+current_setting = ["Background","Snake Color"]
 setting_index=0
 lose = False
 is_flashing = True
 backlight.value = True
 last_time = time.monotonic()
+print(gc.mem_free())
 while pre_game:
+
     buttons = keys.events.get()
     if buttons:
         if not input_cooldown :
             if button.left and buttons.pressed:
                 left_held = buttons.pressed
-
                 input_cooldown = True
             if button.right and buttons.pressed:
                 right_held = buttons.pressed
@@ -567,11 +637,20 @@ while pre_game:
             if button.up and buttons.pressed:
                 up_held = buttons.pressed
                 input_cooldown = True
-
             if button.down and buttons.pressed:
                 down_held = buttons.pressed
                 input_cooldown = True
-        if button.start: start_pressed = True; pre_game = False
+        if button.start:
+            start_pressed = True
+            pre_game = False
+            setting_group.hidden = True
+            score_group = displayio.Group()
+            score_group.append(score_tilegrid)
+            score_group.append(high_score_text)
+            score_group.append(score_text)
+            root_group.append(score_group)
+            high_score_text.text = f"{high_score}"
+            gc.collect()
 
     current_time = time.monotonic()
     if current_time - last_time > menu_speed:
@@ -579,33 +658,53 @@ while pre_game:
         #menu loop
         if right_held:
                 setting_index +=1
+                if setting_index > 1:
+                     setting_index = 0
+                setting_current_text.text = current_setting[setting_index]
         if left_held:
                 setting_index -=1
-        if setting_index < 0:
-            setting_index = 1
-        if setting_index > 1:
-            setting_index = 0
-        if current_setting[setting_index] == "background":
+                if setting_index < 0:
+                    setting_index = 1
+                setting_current_text.text = current_setting[setting_index]
+        if current_setting[setting_index] == "Background":
             if up_held:
                 background_index -=1
                 if background_index < 0:
                     background_index = 8
+                next_background_index -=1
+                if next_background_index < 0:
+                    next_background_index = 8
+                last_background_index -=1
+                if last_background_index < 0:
+                    last_background_index = 8
+
+
                 background_color(backgrounds_list[background_index])
             if down_held:
                 background_index +=1
                 if background_index > 8:
                     background_index = 0
-                background_color(backgrounds_list[background_index])
+                next_background_index +=1
+                if next_background_index > 8:
+                    next_background_index = 0
+                last_background_index +=1
+                if last_background_index > 8:
+                    last_background_index = 0
 
-        if current_setting[setting_index] == "snake_color":
+                background_color(backgrounds_list[background_index])
+            setting_current_option_text.text = backgrounds_list[background_index]
+            setting_next_option_text.text = backgrounds_list[next_background_index]
+            setting_last_option_text.text = backgrounds_list[last_background_index]
+
+        if current_setting[setting_index] == "Snake Color":
             if up_held:
                 snakecolor -= 1
                 if snakecolor < 0:
-                    snakecolor = 7
+                    snakecolor = 10
                 snake_color()
             if down_held:
                 snakecolor += 1
-                if snakecolor > 7:
+                if snakecolor > 10:
                     snakecolor = 0
                 snake_color()
 
@@ -619,7 +718,7 @@ while pre_game:
 
 
 
-
+apple_snake = False
 while start_pressed:
     buttons = keys.events.get()
     if buttons:
@@ -693,12 +792,15 @@ while start_pressed:
                         head_tilegrid[head_x,head_y] =1
                     head_tilegrid[old_head_x,old_head_y] =4
 
-                    apple_snake = any(xy in apples for xy in segment)
+                    if apple_xy in segment:
+                        apple_snake = True
+                        print("yippy")
                     if apple_snake:
                         apple(update)
+                        apple_snake = False
                         score += 1
                         score_text.text = str(score)
-                        play(400,0.03)
+                        play(400,0.00001)
                     else:
                         snake(tail)
                 else:
