@@ -340,91 +340,98 @@ score_group.hidden = True
 t = mark("Add Score and High Score Numbers to Score Bar", t)
 
 #--------Lose screen--------
-lose_text = bitmap_label.Label(
-    font,
-    text="    ",
-    scale= 4)
-lose_text_score = bitmap_label.Label(
-    font,
-    text="    ",
-    scale= 3)
-lose_text_high_score = bitmap_label.Label(
-    font,
-    text="    ",
-    scale= 2)
-lose_text_tip = bitmap_label.Label(
-    font,
-    text="    ",
-    scale= 1)
-print("Lose Screen")
-t = mark("    Text Label Creation", t)
-lose_text.anchor_point = (0.5,0.5)
-lose_text.anchored_position = (80,52)
-lose_text_score.anchor_point = (0.5,0.5)
-lose_text_score.anchored_position = (80,74)
-lose_text_high_score.anchor_point = (0.5,0.5)
-lose_text_high_score.anchored_position = (80,90)
-lose_text_tip.anchor_point = (0.5,0.5)
-lose_text_tip.anchored_position = (80,110)
-lose_group = displayio.Group()
-lose_group.append(lose_text)
-lose_group.append(lose_text_score)
-lose_group.append(lose_text_high_score)
-lose_group.append(lose_text_tip)
-lose_group.hidden = True
-loseword_list = ["YOU LOSE","OUCH"]
-def show_lose_screen():
-    lose_text.text = random.choice(loseword_list)
-    lose_text_score.text =f"Score:{score}"
-    lose_text_tip.text = "Press A to play again"
-    if score > high_score:
-        lose_text_high_score.text="!!NEW HIGH SCORE!!"
-    lose_group.hidden = False
-t = mark("    Label Positioning and Grouping", t)
+if True:
+    lose_text = bitmap_label.Label(
+        font,
+        text="    ",
+        scale= 4)
+    lose_text_score = bitmap_label.Label(
+        font,
+        text="    ",
+        scale= 3)
+    lose_text_high_score = bitmap_label.Label(
+        font,
+        text="    ",
+        scale= 2)
+    lose_text_tip = bitmap_label.Label(
+        font,
+        text="    ",
+        scale= 1)
+    print("Lose Screen")
+    t = mark("    Text Label Creation", t)
+    lose_text.anchor_point = (0.5,0.5)
+    lose_text.anchored_position = (80,52)
+    lose_text_score.anchor_point = (0.5,0.5)
+    lose_text_score.anchored_position = (80,74)
+    lose_text_high_score.anchor_point = (0.5,0.5)
+    lose_text_high_score.anchored_position = (80,90)
+    lose_text_tip.anchor_point = (0.5,0.5)
+    lose_text_tip.anchored_position = (80,110)
+    lose_group = displayio.Group()
+    lose_group.append(lose_text)
+    lose_group.append(lose_text_score)
+    lose_group.append(lose_text_high_score)
+    lose_group.append(lose_text_tip)
+    lose_group.hidden = True
+    loseword_list = ["YOU LOSE","OUCH"]
+    def show_lose_screen():
+        lose_text.text = random.choice(loseword_list)
+        lose_text_score.text =f"Score:{score}"
+        lose_text_tip.text = "Press A to play again"
+        if score > high_score:
+            lose_text_high_score.text="!!NEW HIGH SCORE!!"
+        lose_group.hidden = False
+    lose = False
+    t = mark("    Label Positioning and Grouping", t)
 
 gc.collect()
 t = mark("Garbage Collection", t)
 
 
-print("Settings")
-setting_text = bitmap_label.Label(
-    font,
-    text="Settings",
-    scale= 3)
-setting_current_text = bitmap_label.Label(
-    font,
-    text="Background",
-    scale= 3)
-setting_current_option_text = bitmap_label.Label(
-    font,
-    text="Day",
-    scale= 3,)
-setting_next_option_text = bitmap_label.Label(
-    font,
-    text="Basic",
-    scale= 2)
-setting_last_option_text = bitmap_label.Label(
-    font,
-    text="Night",
-    scale= 2)
-t = mark("    Text Label Creation", t)
-setting_text.anchor_point = (0.5,0.5)
-setting_text.anchored_position = (80,10)
-setting_current_text.anchor_point = (0.5,0.5)
-setting_current_text.anchored_position = (80,30)
-setting_current_option_text.anchor_point = (0.5,0.5)
-setting_current_option_text.anchored_position = (80,85)
-setting_next_option_text.anchor_point = (0.5,0.5)
-setting_next_option_text.anchored_position = (80,100)
-setting_last_option_text.anchor_point = (0.5,0.5)
-setting_last_option_text.anchored_position = (80,60)
-setting_group = displayio.Group()
-setting_group.append(setting_text)
-setting_group.append(setting_current_text)
-setting_group.append(setting_current_option_text)
-setting_group.append(setting_next_option_text)
-setting_group.append(setting_last_option_text)
-t = mark("    Label Positioning and Grouping", t)
+#-------Settings-------
+if True:
+    print("Settings")
+    setting_text = bitmap_label.Label(
+        font,
+        text="Settings",
+        scale= 3)
+    setting_current_text = bitmap_label.Label(
+        font,
+        text="Background",
+        scale= 3)
+    setting_current_option_text = bitmap_label.Label(
+        font,
+        text="Day",
+        scale= 3,)
+    setting_next_option_text = bitmap_label.Label(
+        font,
+        text="Basic",
+        scale= 2)
+    setting_last_option_text = bitmap_label.Label(
+        font,
+        text="Night",
+        scale= 2)
+    t = mark("    Text Label Creation", t)
+    setting_text.anchor_point = (0.5,0.5)
+    setting_text.anchored_position = (80,10)
+    setting_current_text.anchor_point = (0.5,0.5)
+    setting_current_text.anchored_position = (80,30)
+    setting_current_option_text.anchor_point = (0.5,0.5)
+    setting_current_option_text.anchored_position = (80,85)
+    setting_next_option_text.anchor_point = (0.5,0.5)
+    setting_next_option_text.anchored_position = (80,100)
+    setting_last_option_text.anchor_point = (0.5,0.5)
+    setting_last_option_text.anchored_position = (80,60)
+    setting_group = displayio.Group()
+    setting_group.append(setting_text)
+    setting_group.append(setting_current_text)
+    setting_group.append(setting_current_option_text)
+    setting_group.append(setting_next_option_text)
+    setting_group.append(setting_last_option_text)
+    current_setting = ["Background","Snake Color","Snake Shadow","Snake Head"]
+    setting_index=0
+    setting_changed = False
+    t = mark("    Label Positioning and Grouping", t)
 
 gc.collect()
 t = mark("Garbage Collection", t)
@@ -471,6 +478,8 @@ head_tilegrid = displayio.TileGrid(
     default_tile=4,
     x = tile_size//2,
     y = tile_size*2+tile_size//2,)
+snake_head_status = True
+snake_shadow_status = True
 t = mark("Creating tilegrids", t)
 
 #--------Snake, Body, and Apple Logic--------
@@ -482,7 +491,8 @@ apple_xy = None
 snakecolor = 7
 snakecolor_next = 8
 snakecolor_last = 6
-snakecolor_list = ["Red","Orange","Yellow","Pure Green","Green","Pure Blue","Blue","Blinka Purple","Pink","White","Black"]
+snakecolor_list = ["Red","Orange","Yellow","Pure Green","Green",
+"Pure Blue","Blue","Blinka Purple","Pink","White","Black"]
 def snake(operation,x=None,y=None):
     if operation == "new":
         segment.insert(0,(head_x,head_y))
@@ -556,53 +566,29 @@ remove = "remove"#removes apple
 t = mark("Snake, Body, and Apple Logic", t)
 gc.collect()
 t = mark("Garbage Collection", t)
+
 #-------Put the tilegrids, Text Labels, and Sub-Groups into root_group-------
 #---Game Group---
 
-
-#game_group = displayio.Group()
-#game_group.append(apple_tilegrid)
-
 shadow_group = displayio.Group(x=5,y=6,scale=8)
 shadow_group.append(shadow_tilegrid)
-snake_shadow_status = True
 snake_group = displayio.Group(x=4,y=4,scale=8)
 snake_group.append(game_tilegrid)
-
-#game_group.append(shadow_group)
-#game_group.append(snake_group)
-#game_group.append(head_tilegrid)
 
 gc.collect()
 t = mark("Garbage Collection", t)
 
-
-
-#---background Group---
-#foreground_group = displayio.Group()
-#foreground_group.append(foreground)
-
-
 #---Root Group---
 root_group.append(background)
-
-
-#root_group.append(game_group)
 root_group.append(apple_tilegrid)
 root_group.append(shadow_group)
 root_group.append(snake_group)
 root_group.append(head_tilegrid)
-snake_head_status = True
 
 root_group.append(foreground)
-
-
-
 root_group.append(lose_group)
 root_group.append(score_group)
-
 display.root_group = root_group
-
 t = mark("Grouping", t)
 
 gc.collect()
@@ -622,10 +608,11 @@ if True:
     down_held = False
     select_held = False
 
+    is_flashing = True
+    select_pressed = False
     start_pressed = False
     start_sequence = False
     input_cooldown = False
-
 #-------Initializing Game Variables-------
 if True:
     #---snake---
@@ -652,15 +639,11 @@ if True:
         #         9  = 0.119714
         #         10 = 0.110386
 t = mark("Game Variables", t)
-current_setting = ["Background","Snake Color","Snake Shadow","Snake Head"]
-setting_index=0
-setting_changed = False
-lose = False
-is_flashing = True
+
 backlight.value = True
 last_time = time.monotonic()
 print(gc.mem_free())
-select_pressed = False
+
 while pre_game:
     buttons = keys.events.get()
     if buttons:
@@ -723,7 +706,6 @@ while pre_game:
                     setting_last_option_text.text = backgrounds_list[last_background_index]
                     background_color(backgrounds_list[background_index])
                     gc.collect()
-
             #-----Snake Color-----
             if current_setting[setting_index] == "Snake Color":
                 if setting_changed:
@@ -744,6 +726,7 @@ while pre_game:
                     setting_last_option_text.text = snakecolor_list[snakecolor_last]
                     snake_color()
                     gc.collect()
+            #-----Snake Shadow-----
             if current_setting[setting_index] == "Snake Shadow":
                 if setting_changed:
                     setting_changed = False
@@ -760,6 +743,7 @@ while pre_game:
                         shadow_group.hidden = True
                     setting_current_option_text.text = str(snake_shadow_status)
                     gc.collect()
+            #-----Snake Head-----
             if current_setting[setting_index] == "Snake Head":
                 if setting_changed:
                     setting_changed = False
@@ -776,6 +760,8 @@ while pre_game:
                         head_tilegrid.hidden = True
                     setting_current_option_text.text = str(snake_head_status)
                     gc.collect()
+
+            #reset inputs
             input_cooldown= False
             left_held = False
             right_held = False
