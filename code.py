@@ -26,7 +26,9 @@ display.root_group = root_group
 #the screen from flickering on start for a clearer experience
 backlight = digitalio.DigitalInOut(microcontroller.pin.PA01)
 backlight.direction = digitalio.Direction.OUTPUT
+
 backlight.value = False #keep screen off
+
 t = mark("Initializing the Display", t)
 
 #-------Load Font-------
@@ -157,6 +159,7 @@ for y in range(3*tile_size,4*tile_size):
         bitmap[x,y] = 3
 t = mark("Setup Snake and Apple Palettes and Bitmaps", t)
 
+
 #-------Load Images-------
 print("Load Bitmap Image:")
 icons_bitmap, icons_palette = adafruit_imageload.load(
@@ -170,6 +173,7 @@ t = mark("    snake_head.bmp", t)
 background_bitmap, background_palette = adafruit_imageload.load(
     "assets/tile_size_8/background.bmp", bitmap=displayio.Bitmap, palette=displayio.Palette)
 t = mark("    background.bmp", t)
+
 
 #-------Background-------
 print("Background")
@@ -226,67 +230,67 @@ for x in range(40):
     foreground_tilegrid[x,2]=5
     foreground_tilegrid[x,3]=5
 t = mark("    Assembling the Background", t)
-day = "day"
-night = "night"
-snow = "snow"
+day = "Day"
+night = "Night"
+snow = "Snow"
 lava = "lava"
-desert = "desert"
-forest = "forest"
-sea = "sea"
-space = "space"
-basic = "basic"
+desert = "Desert"
+forest = "Forest"
+sea = "Sea"
+space = "Space"
+basic = "Basic"
 custom = "custom"
 random_theme = "random"
 random_option = None
 backgrounds_list = [day,night,snow,lava,desert,forest,sea,space,basic]
 background_index = 0
-next_background_index = 8
-last_background_index = 1
+next_background_index = 1
+last_background_index = 8
 current_theme= None
 #---background_color Function---
 def background_color(theme,part=None,hex=None):
     global current_theme
-    if theme == "day":
+    if theme == "Day":
         background_palette[0] = 0x4A752C #score bar
         background_palette[1] = 0x568A34 #border
         background_palette[2] = 0xA2D148 #dark in checkerboard
         background_palette[3] = 0xAAD750 #light in checkerboard
-    elif theme == "night":
+    elif theme == "Night":
         background_palette[0] = 0x262428 #score bar
         background_palette[1] = 0x2C2730 #border
         background_palette[2] = 0x443E4C #dark in checkerboard
         background_palette[3] = 0x494351 #light in checkerboard
-    elif theme == "snow":
+    elif theme == "Snow":
         background_palette[0] = 0x758A8A #score bar
         background_palette[1] = 0x879fA1 #border
         background_palette[2] = 0xD2E4E5 #dark in checkerboard
         background_palette[3] = 0xDFEBED #light in checkerboard
-    elif theme == "lava":
+    elif theme == "Lava":
         background_palette[0] = 0x762E2E #score bar
         background_palette[1] = 0xA33F3D #border
         background_palette[2] = 0x673231 #dark in checkerboard
         background_palette[3] = 0x6E3535 #light in checkerboard
-    elif theme == "desert":
+    elif theme == "Desert":
         background_palette[0] = 0x725E1D #score bar
         background_palette[1] = 0x977B26 #border
         background_palette[2] = 0xECCE79 #dark in checkerboard
         background_palette[3] = 0xF2D78C #light in checkerboard
-    elif theme == "forest":
+    elif theme == "Forest":
         background_palette[0] = 0x202823 #score bar
         background_palette[1] = 0x253227 #border
         background_palette[2] = 0x3B4F3F #dark in checkerboard
         background_palette[3] = 0x3F5543 #light in checkerboard
-    elif theme == "sea":
+    elif theme == "Sea":
         background_palette[0] = 0x1E457C #score bar
         background_palette[1] = 0x275BA5 #border
         background_palette[2] = 0xA3C5F5 #dark in checkerboard
         background_palette[3] = 0xB4D0F9 #light in checkerboard
-    elif theme == "space":
+    elif theme == "Space":
         background_palette[0] = 0x442A6F #score bar
         background_palette[1] = 0x604096 #border
         background_palette[2] = 0x3D285D #dark in checkerboard
         background_palette[3] = 0x432C68 #light in checkerboard
-    elif theme == "basic":
+    elif theme == "Basic":
         background_palette[0] = 0x101010 #score bar
         background_palette[1] = 0x101010 #border
         background_palette[2] = 0x000000 #dark in checkerboard
@@ -316,18 +320,23 @@ t = mark("    background_color Function", t)
 #-------Score and Highscore-------
 high_score_text = bitmap_label.Label(
     font,
-    text=str(high_score),
+    text="   ",
     x=68,
     y=10,
     scale=3,
     max_characters=3)
 score_text = bitmap_label.Label(
     font,
-    text=str(score),
+    text="   ",
     x=19,
     y=10,
     scale=3,
     max_characters=3)
+score_group = displayio.Group()
+score_group.append(score_tilegrid)
+score_group.append(high_score_text)
+score_group.append(score_text)
+score_group.hidden = True
 t = mark("Add Score and High Score Numbers to Score Bar", t)
 
 #--------Lose screen--------
@@ -367,11 +376,14 @@ loseword_list = ["YOU LOSE","OUCH"]
 def show_lose_screen():
     lose_text.text = random.choice(loseword_list)
     lose_text_score.text =f"Score:{score}"
-    lose_text_tip.text = "Press reset to play again"
+    lose_text_tip.text = "Press A to play again"
     if score > high_score:
         lose_text_high_score.text="!!NEW HIGH SCORE!!"
     lose_group.hidden = False
 t = mark("    Label Positioning and Grouping", t)
+
+gc.collect()
+t = mark("Garbage Collection", t)
 
 
 print("Settings")
@@ -401,21 +413,21 @@ setting_text.anchored_position = (80,10)
 setting_current_text.anchor_point = (0.5,0.5)
 setting_current_text.anchored_position = (80,30)
 setting_current_option_text.anchor_point = (0.5,0.5)
-setting_current_option_text.anchored_position = (80,70)
+setting_current_option_text.anchored_position = (80,85)
 setting_next_option_text.anchor_point = (0.5,0.5)
-setting_next_option_text.anchored_position = (80,55)
+setting_next_option_text.anchored_position = (80,100)
 setting_last_option_text.anchor_point = (0.5,0.5)
-setting_last_option_text.anchored_position = (80,85)
+setting_last_option_text.anchored_position = (80,60)
 setting_group = displayio.Group()
 setting_group.append(setting_text)
 setting_group.append(setting_current_text)
 setting_group.append(setting_current_option_text)
 setting_group.append(setting_next_option_text)
 setting_group.append(setting_last_option_text)
-
-
-
 t = mark("    Label Positioning and Grouping", t)
+
+gc.collect()
+t = mark("Garbage Collection", t)
 
 #--------tilegrids for Game, Apples, Head--------
 game_tilegrid = displayio.TileGrid(
@@ -468,6 +480,9 @@ head_x = None
 head_y = None
 apple_xy = None
 snakecolor = 7
+snakecolor_next = 8
+snakecolor_last = 6
+snakecolor_list = ["Red","Orange","Yellow","Pure Green","Green","Pure Blue","Blue","Blinka Purple","Pink","White","Black"]
 def snake(operation,x=None,y=None):
     if operation == "new":
         segment.insert(0,(head_x,head_y))
@@ -532,46 +547,66 @@ def apple(operation,x=None,y=None):
         apple_tilegrid[x, y] = apple_color
         apple_xy = apples
     print("apple is located at",apple_xy)
+
 new = "new" #add new segment at head location
 tail = "tail" #removes tail
 update = "update"#adds new segment at head and removes segment at tail
 seg_xy = "seg_xy"#add segment at defined coordinates
 remove = "remove"#removes apple
 t = mark("Snake, Body, and Apple Logic", t)
-
+gc.collect()
+t = mark("Garbage Collection", t)
 #-------Put the tilegrids, Text Labels, and Sub-Groups into root_group-------
 #---Game Group---
 
 
-game_group = displayio.Group()
-game_group.append(apple_tilegrid)
+#game_group = displayio.Group()
+#game_group.append(apple_tilegrid)
 
 shadow_group = displayio.Group(x=5,y=6,scale=8)
 shadow_group.append(shadow_tilegrid)
+snake_shadow_status = True
 snake_group = displayio.Group(x=4,y=4,scale=8)
 snake_group.append(game_tilegrid)
 
-game_group.append(shadow_group)
-game_group.append(snake_group)
-game_group.append(head_tilegrid)
+#game_group.append(shadow_group)
+#game_group.append(snake_group)
+#game_group.append(head_tilegrid)
+
+gc.collect()
+t = mark("Garbage Collection", t)
 
 
 
 #---background Group---
-foreground_group = displayio.Group()
-foreground_group.append(foreground)
+#foreground_group = displayio.Group()
+#foreground_group.append(foreground)
 
 
 #---Root Group---
 root_group.append(background)
-root_group.append(game_group)
 
-root_group.append(foreground_group)
-root_group.append(setting_group)
+
+#root_group.append(game_group)
+root_group.append(apple_tilegrid)
+root_group.append(shadow_group)
+root_group.append(snake_group)
+root_group.append(head_tilegrid)
+snake_head_status = True
+
+root_group.append(foreground)
+
+
+
 root_group.append(lose_group)
+root_group.append(score_group)
+
 display.root_group = root_group
-gc.collect()
+
 t = mark("Grouping", t)
+
+gc.collect()
+t = mark("Garbage Collection", t)
 
 #-------Initializing Input Detection-------
 if True:
@@ -590,6 +625,7 @@ if True:
     start_pressed = False
     start_sequence = False
     input_cooldown = False
+
 #-------Initializing Game Variables-------
 if True:
     #---snake---
@@ -601,7 +637,7 @@ if True:
         snake(seg_xy,x,head_y)
     pre_game = True
     #---speed---
-    speed_level =3
+    speed_level =5
     menu_speed = 0.3
     game_speed =  0.65 * (speed_level ** -0.77)
         #speed_level = game_speed
@@ -616,117 +652,146 @@ if True:
         #         9  = 0.119714
         #         10 = 0.110386
 t = mark("Game Variables", t)
-current_setting = ["Background","Snake Color"]
+current_setting = ["Background","Snake Color","Snake Shadow","Snake Head"]
 setting_index=0
+setting_changed = False
 lose = False
 is_flashing = True
 backlight.value = True
 last_time = time.monotonic()
 print(gc.mem_free())
+select_pressed = False
 while pre_game:
-
     buttons = keys.events.get()
     if buttons:
         if not input_cooldown :
-            if button.left and buttons.pressed:
-                left_held = buttons.pressed
-                input_cooldown = True
-            if button.right and buttons.pressed:
-                right_held = buttons.pressed
-                input_cooldown = True
-            if button.up and buttons.pressed:
-                up_held = buttons.pressed
-                input_cooldown = True
-            if button.down and buttons.pressed:
-                down_held = buttons.pressed
-                input_cooldown = True
+            if select_pressed:
+                if button.left and buttons.pressed:
+                    left_held = buttons.pressed
+                    input_cooldown = True
+                if button.right and buttons.pressed:
+                    right_held = buttons.pressed
+                    input_cooldown = True
+                if button.up and buttons.pressed:
+                    up_held = buttons.pressed
+                    input_cooldown = True
+                if button.down and buttons.pressed:
+                    down_held = buttons.pressed
+                    input_cooldown = True
+            elif button.select:
+                select_pressed = True
+                root_group.append(setting_group)
+                gc.collect()
         if button.start:
             start_pressed = True
             pre_game = False
             setting_group.hidden = True
-            score_group = displayio.Group()
-            score_group.append(score_tilegrid)
-            score_group.append(high_score_text)
-            score_group.append(score_text)
-            root_group.append(score_group)
-            high_score_text.text = f"{high_score}"
+            score_group.hidden = False
+            high_score_text.text = str(high_score)
+            score_text.text = str(score)
             gc.collect()
-
-    current_time = time.monotonic()
-    if current_time - last_time > menu_speed:
-        last_time = time.monotonic()
-        #menu loop
-        if right_held:
-                setting_index +=1
-                if setting_index > 1:
-                     setting_index = 0
+    if select_pressed:
+        current_time = time.monotonic()
+        if current_time - last_time > menu_speed:
+            last_time = time.monotonic()
+            #menu loop
+            #-----Check if Switch to Next Setting-----
+            if right_held or left_held:
+                if right_held:
+                    setting_index = (setting_index +1) % len(current_setting)
+                if left_held:
+                    setting_index = (setting_index -1) % len(current_setting)
                 setting_current_text.text = current_setting[setting_index]
-        if left_held:
-                setting_index -=1
-                if setting_index < 0:
-                    setting_index = 1
-                setting_current_text.text = current_setting[setting_index]
-        if current_setting[setting_index] == "Background":
-            if up_held:
-                background_index -=1
-                if background_index < 0:
-                    background_index = 8
-                next_background_index -=1
-                if next_background_index < 0:
-                    next_background_index = 8
-                last_background_index -=1
-                if last_background_index < 0:
-                    last_background_index = 8
+                setting_changed = True
+            #-----Background-----
+            if current_setting[setting_index] == "Background":
+                if setting_changed:
+                    setting_changed = False
+                    setting_current_option_text.text = backgrounds_list[background_index]
+                    setting_next_option_text.text = backgrounds_list[next_background_index]
+                    setting_last_option_text.text = backgrounds_list[last_background_index]
+                    gc.collect()
+                if up_held or down_held:
+                    if up_held:
+                        background_index = (background_index -1) % len(backgrounds_list)
+                    if down_held:
+                        background_index = (background_index +1) % len(backgrounds_list)
+                    next_background_index = (background_index +1) % len(backgrounds_list)
+                    last_background_index = (background_index -1) % len(backgrounds_list)
+                    setting_current_option_text.text = backgrounds_list[background_index]
+                    setting_next_option_text.text = backgrounds_list[next_background_index]
+                    setting_last_option_text.text = backgrounds_list[last_background_index]
+                    background_color(backgrounds_list[background_index])
+                    gc.collect()
 
-
-                background_color(backgrounds_list[background_index])
-            if down_held:
-                background_index +=1
-                if background_index > 8:
-                    background_index = 0
-                next_background_index +=1
-                if next_background_index > 8:
-                    next_background_index = 0
-                last_background_index +=1
-                if last_background_index > 8:
-                    last_background_index = 0
-
-                background_color(backgrounds_list[background_index])
-            setting_current_option_text.text = backgrounds_list[background_index]
-            setting_next_option_text.text = backgrounds_list[next_background_index]
-            setting_last_option_text.text = backgrounds_list[last_background_index]
-
-        if current_setting[setting_index] == "Snake Color":
-            if up_held:
-                snakecolor -= 1
-                if snakecolor < 0:
-                    snakecolor = 10
-                snake_color()
-            if down_held:
-                snakecolor += 1
-                if snakecolor > 10:
-                    snakecolor = 0
-                snake_color()
-
-
-        input_cooldown= False
-        left_held = False
-        right_held = False
-        up_held = False
-        down_held = False
-
-
+            #-----Snake Color-----
+            if current_setting[setting_index] == "Snake Color":
+                if setting_changed:
+                    setting_changed = False
+                    setting_current_option_text.text = snakecolor_list[snakecolor]
+                    setting_next_option_text.text = snakecolor_list[snakecolor_next]
+                    setting_last_option_text.text = snakecolor_list[snakecolor_last]
+                    gc.collect()
+                if up_held or down_held:
+                    if up_held:
+                        snakecolor = (snakecolor -1) % len(snakecolor_list)
+                    if down_held:
+                        snakecolor = (snakecolor +1) % len(snakecolor_list)
+                    snakecolor_next = (snakecolor +1) % len(snakecolor_list)
+                    snakecolor_last = (snakecolor -1) % len(snakecolor_list)
+                    setting_current_option_text.text = snakecolor_list[snakecolor]
+                    setting_next_option_text.text = snakecolor_list[snakecolor_next]
+                    setting_last_option_text.text = snakecolor_list[snakecolor_last]
+                    snake_color()
+                    gc.collect()
+            if current_setting[setting_index] == "Snake Shadow":
+                if setting_changed:
+                    setting_changed = False
+                    setting_current_option_text.text = str(snake_shadow_status)
+                    setting_next_option_text.text = "   "
+                    setting_last_option_text.text = "   "
+                    gc.collect()
+                if up_held or down_held:
+                    if up_held:
+                        snake_shadow_status = True
+                        shadow_group.hidden = False
+                    if down_held:
+                        snake_shadow_status = False
+                        shadow_group.hidden = True
+                    setting_current_option_text.text = str(snake_shadow_status)
+                    gc.collect()
+            if current_setting[setting_index] == "Snake Head":
+                if setting_changed:
+                    setting_changed = False
+                    setting_current_option_text.text = str(snake_head_status)
+                    setting_next_option_text.text = "   "
+                    setting_last_option_text.text = "   "
+                    gc.collect()
+                if up_held or down_held:
+                    if up_held:
+                        snake_head_status = True
+                        head_tilegrid.hidden = False
+                    if down_held:
+                        snake_head_status = False
+                        head_tilegrid.hidden = True
+                    setting_current_option_text.text = str(snake_head_status)
+                    gc.collect()
+            input_cooldown= False
+            left_held = False
+            right_held = False
+            up_held = False
+            down_held = False
 
 
 apple_snake = False
-while start_pressed:
+while start_pressed and lose == False:
     buttons = keys.events.get()
     if buttons:
-        if button.left:  left_held = buttons.pressed
-        if button.right: right_held = buttons.pressed
-        if button.up:    up_held = buttons.pressed
-        if button.down:  down_held = buttons.pressed
-        if button.start: start_pressed = True
+        if button.left:   left_held = buttons.pressed
+        if button.right:  right_held = buttons.pressed
+        if button.up:     up_held = buttons.pressed
+        if button.down:   down_held = buttons.pressed
+        if button.start:  start_pressed = True
     #checks if moving left or right
     if direction_left or direction_right:
         #checks if only up or only down held
@@ -756,71 +821,72 @@ while start_pressed:
                 direction_down = False
                 input_cooldown = True
 
-    #checks if start pressed
-    if lose == False:
-        #only run start sequence once when start pressed
-        if start_sequence!= True:
-            #sets all snake directions to false except for left
-            start_sequence = True
-            direction_up = False
-            direction_down = False
-            direction_right = True
-            direction_left =False
-            apple(new)
+    if start_sequence!= True:
+        #sets all snake directions to false except for left
+        start_sequence = True
+        direction_up = False
+        direction_down = False
+        direction_right = True
+        direction_left =False
+        apple(new)
+        gc.collect()
 
-        current_time = time.monotonic()
-        if current_time - last_time > game_speed:
-            last_time = time.monotonic()
-            #game loop
-            old_head_x = head_x
-            old_head_y = head_y
-            input_cooldown= False
-            if direction_left:  head_x -= 1
-            if direction_right: head_x += 1
-            if direction_up:    head_y -= 1
-            if direction_down:  head_y += 1
-            if len(segment) == len(set(segment)):
-                if head_x in range(0,19) and head_y in range(0,13):
-                    snake(new)
-                    if direction_left:
-                        head_tilegrid[head_x,head_y] =2
-                    if direction_right:
-                        head_tilegrid[head_x,head_y] =3
-                    if direction_up:
-                        head_tilegrid[head_x,head_y] =0
-                    if direction_down:
-                        head_tilegrid[head_x,head_y] =1
-                    head_tilegrid[old_head_x,old_head_y] =4
+    current_time = time.monotonic()
+    if current_time - last_time > game_speed:
+        last_time = time.monotonic()
+        #game loop
+        old_head_x = head_x
+        old_head_y = head_y
+        input_cooldown= False
+        if direction_left:  head_x -= 1
+        if direction_right: head_x += 1
+        if direction_up:    head_y -= 1
+        if direction_down:  head_y += 1
+        if len(segment) == len(set(segment)):
+            if head_x in range(0,19) and head_y in range(0,13):
+                snake(new)
+                if direction_left:
+                    head_tilegrid[head_x,head_y] =2
+                if direction_right:
+                    head_tilegrid[head_x,head_y] =3
+                if direction_up:
+                    head_tilegrid[head_x,head_y] =0
+                if direction_down:
+                    head_tilegrid[head_x,head_y] =1
+                head_tilegrid[old_head_x,old_head_y] =4
 
-                    if apple_xy in segment:
-                        apple_snake = True
-                        print("yippy")
-                    if apple_snake:
-                        apple(update)
-                        apple_snake = False
-                        score += 1
-                        score_text.text = str(score)
-                        play(400,0.00001)
-                    else:
-                        snake(tail)
+                if apple_xy in segment:
+                    apple(update)
+                    apple_snake = False
+                    score += 1
+                    score_text.text = str(score)
+                    play(400,0.00001)
+                    gc.collect()
+
                 else:
-                    lose = True
+                    snake(tail)
+                    gc.collect()
             else:
                 lose = True
-    if lose:
-        show_lose_screen()
-        if score > high_score:
-            print("New High Score!")
-            high_score = score
-            save_high_score(high_score)
-        while True:
-            buttons = keys.events.get()
-            if buttons:
-                print(True)
-                if button.a :
-                    supervisor.reload()
-            current_time = time.monotonic()
-            if current_time - last_time > 0.5:
-                last_time = time.monotonic()
-                lose_text_high_score.hidden = not lose_text_high_score.hidden
+        else:
+            lose = True
+if lose:
+    show_lose_screen()
+    if score > high_score:
+        print("New High Score!")
+        high_score = score
+        save_high_score(high_score)
+    while True:
+        buttons = keys.events.get()
+        if buttons:
+            print(True)
+            if button.a :
+                time.sleep(0.1)
+                gc.collect()
+                supervisor.reload()
+        current_time = time.monotonic()
+        if current_time - last_time > 0.5:
+            last_time = time.monotonic()
+            lose_text_high_score.hidden = not lose_text_high_score.hidden
+
 
