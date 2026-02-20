@@ -44,12 +44,10 @@ speaker_enable.value = True
 audio = audioio.AudioOut(board.SPEAKER)
 synth = synthio.Synthesizer(sample_rate=22050)
 audio.play(synth)
-def play(frequency, duration):
+def play(frequency):
     # 'press' starts the note
     note = synthio.Note(frequency=frequency)
     synth.press(note)
-    time.sleep(duration)
-    # 'release' stops it
     synth.release(note)
 t = mark("Initialize Speaker", t)
 
@@ -428,7 +426,7 @@ if True:
     setting_group.append(setting_current_option_text)
     setting_group.append(setting_next_option_text)
     setting_group.append(setting_last_option_text)
-    current_setting = ["Background","Snake Color","Snake Shadow","Snake Head"]
+    current_setting = ["Background","Snake Color","Snake Shadow","Snake Head","Speed"]
     setting_index=0
     setting_changed = False
     t = mark("    Label Positioning and Grouping", t)
@@ -760,6 +758,21 @@ while pre_game:
                         head_tilegrid.hidden = True
                     setting_current_option_text.text = str(snake_head_status)
                     gc.collect()
+            if current_setting[setting_index] == "Speed":
+                if setting_changed:
+                    setting_changed = False
+                    setting_current_option_text.text = str(speed_level)
+                    setting_next_option_text.text = "   "
+                    setting_last_option_text.text = "   "
+                    gc.collect()
+                if up_held or down_held:
+                    if up_held and speed_level<10:
+                        speed_level +=1
+                    if down_held and speed_level>1:
+                        speed_level -= 1
+                    setting_current_option_text.text = str(speed_level)
+                    game_speed =  0.65 * (speed_level ** -0.77)
+                    gc.collect()
 
             #reset inputs
             input_cooldown= False
@@ -843,10 +856,11 @@ while start_pressed and lose == False:
 
                 if apple_xy in segment:
                     apple(update)
-                    apple_snake = False
                     score += 1
                     score_text.text = str(score)
-                    play(400,0.00001)
+                    play(400)
+                    while apple_xy in segment:
+                        apple(update)
                     gc.collect()
 
                 else:
