@@ -6,23 +6,23 @@ This snake game features lots of options. There are 9 backgrounds, 11 customizab
 
 ## Backgrounds
 This game has 9 great colors including:
-| Color    | Background        | Color    | Background        |
-| -------- | ----------------- | -------- | ----------------- |
-| ☀️Day    | ![Day][day]       | ⭐️Night  | ![Night][night]   |
-| ❄️Snow   | ![Snow][snow]     | 🌋Lava   | ![Lava][lava]     |
-| 🌵Desert | ![Desert][desert] | 🌳Forest | ![Forest][forest] |
-| 🌊Sea    | ![Sea][sea]       | 👽Space  | ![Space][space]   |
-| 🐍Basic  | ![Basic][basic]   |          |                   |
+| Color    | Background | Color    | Background |
+| -------- | ---------- | -------- | ---------- |
+| ☀️Day    | ![day]    | ⭐️Night  | ![night]   |
+| ❄️Snow   | ![snow]   | 🌋Lava   | ![lava]    |
+| 🌵Desert | ![desert] | 🌳Forest | ![forest]  |
+| 🌊Sea    | ![sea]    | 👽Space  | ![space]   |
+| 🐍Basic  | ![basic]  |          |            |
 
 ## Snake Colors
-| Color      | Preview                   | Color     | Preview                 |
-| ---------- | ------------------------- | --------- | ----------------------- |
-| Red        | ![Red][red]               | Pure Blue | ![Pure Blue][pure_blue] |
-| Orange     | ![Orange][orange]         | Blue      | ![Blue][blue]           |
-| Yellow     | ![Yellow][yellow]         | Purple    | ![Purple][purple]       |
-| Pure Green | ![Pure Green][pure_green] | Pink      | ![Pink][pink]           |
-| Green      | ![Green][green]           | Black     | ![Black][black]         |
-| White      | ![White][white]           |           |                         |
+| Color      | Preview       | Color     | Preview      |
+| ---------- | ------------- | --------- | ------------ |
+| Red        | ![red]        | Pure Blue | ![pure_blue] |
+| Orange     | ![orange]     | Blue      | ![blue]      |
+| Yellow     | ![yellow]     | Purple    | ![purple]    |
+| Pure Green | ![pure_green] | Pink      | ![pink]      |
+| Green      | ![green]      | Black     | ![black]     |
+| White      | ![white]      |           |              |
 
 ## Speed
 There are 10 diffrent speed options with varing levels of difficulty. there is anything from speed 1 which is easy to ten which is very fast. It is toggleable from within the settings menu and defults to 5.
