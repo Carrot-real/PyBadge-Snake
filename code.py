@@ -13,7 +13,7 @@ import audioio, synthio #for the buzzer
 import displayio, digitalio
 import supervisor, microcontroller
 import adafruit_imageload
-import gc
+import gc, neopixel
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import bitmap_label
 t = mark("Load Modules", t)
@@ -231,7 +231,7 @@ t = mark("    Assembling the Background", t)
 day = "Day"
 night = "Night"
 snow = "Snow"
-lava = "lava"
+lava = "Lava"
 desert = "Desert"
 forest = "Forest"
 sea = "Sea"
@@ -498,8 +498,10 @@ def snake(operation,x=None,y=None):
         shadow_tilegrid[head_x, head_y] = 192
     if operation == "tail":
         oldx,oldy = segment.pop()
-        game_tilegrid[oldx,oldy] = 0
-        shadow_tilegrid[oldx, oldy] = 0
+        if (oldx,oldy) not in segment:
+            game_tilegrid[oldx,oldy] = 0
+            shadow_tilegrid[oldx, oldy] = 0
+
     if operation == "update":
         segment.insert(0,(head_x,head_y))
         oldx,oldy = segment.pop()
@@ -591,6 +593,13 @@ t = mark("Grouping", t)
 
 gc.collect()
 t = mark("Garbage Collection", t)
+
+pixel = neopixel.NeoPixel(board.NEOPIXEL , 1, brightness=1)
+
+pixel[0] = (0,0,0)
+
+
+
 
 #-------Initializing Input Detection-------
 if True:
@@ -855,6 +864,7 @@ while start_pressed and lose == False:
                 head_tilegrid[old_head_x,old_head_y] =4
 
                 if apple_xy in segment:
+                    pixel[0] = (0,20,0)
                     apple(update)
                     score += 1
                     score_text.text = str(score)
@@ -862,10 +872,16 @@ while start_pressed and lose == False:
                     while apple_xy in segment:
                         apple(update)
                     gc.collect()
+                    
 
                 else:
+
                     snake(tail)
+
+                        
                     gc.collect()
+
+                    pixel[0] = (0,0,0)
             else:
                 lose = True
         else:
@@ -887,6 +903,10 @@ if lose:
         current_time = time.monotonic()
         if current_time - last_time > 0.5:
             last_time = time.monotonic()
+            if pixel[0] == (0,0,0):
+                pixel[0] = (20,0,0)
+            else:
+                pixel[0] = (0,0,0)
             lose_text_high_score.hidden = not lose_text_high_score.hidden
 
 
