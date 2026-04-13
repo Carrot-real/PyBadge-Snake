@@ -1,43 +1,36 @@
-import time
 import board
 import digitalio
 import storage
-import keypad
+import time
+import neopixel
 
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
+latch = digitalio.DigitalInOut(board.BUTTON_LATCH)
+latch.direction = digitalio.Direction.OUTPUT
+clock = digitalio.DigitalInOut(board.BUTTON_CLOCK)
+clock.direction = digitalio.Direction.OUTPUT
+data = digitalio.DigitalInOut(board.BUTTON_OUT)
+data.direction = digitalio.Direction.INPUT
+data.pull = digitalio.Pull.UP
 
-keys=keypad.ShiftRegisterKeys(
-    clock= board.BUTTON_CLOCK,
-    data=  board.BUTTON_OUT,
-    latch= board.BUTTON_LATCH,
-    key_count=8,
-    value_when_pressed=True,
-    interval=0.01,)
+def check_for_high_signal():
+    latch.value = False
+    time.sleep(0.01)
+    latch.value = True
+    return data.value
 
-led.value = True
-time.sleep(0.05)
-led.value = False
-time.sleep(1)
-buttons = keys.events.get()
-led.value = True
-time.sleep(0.05)
-led.value = False
+time.sleep(0.5)
+is_pressed = check_for_high_signal()
 
-if buttons:
-    print("wwwwwwwwiewifjfj")
-print(True)
-if buttons:
-    print("ryutryuyyureu")
-    if buttons.key_number==3 and buttons.pressed:
-        press = True
-        print(True)
+latch.deinit()
+clock.deinit()
+data.deinit()
 
-# D11 is pad #5, GND is pad #4 on the right-side row (looking at the back)
-switch = digitalio.DigitalInOut(board.D11)
-switch.direction = digitalio.Direction.INPUT
-switch.pull = digitalio.Pull.UP
-
-# BRIDGE PADS 4 & 5: The PyBadge takes control (PC is Read-Only)
-# LEAVE THEM ALONE: Your PC takes control (Board is Read-Only)
-storage.remount("/", readonly=press)
+leds = neopixel.NeoPixel(board.NEOPIXEL, 5)
+if is_pressed: # If we finally saw a 'True'
+    storage.remount("/", readonly=False)
+    leds.fill((0, 255, 0)) # Green
+    print("MODE: Badge Write (Saw High Signal)")
+else:
+    storage.remount("/", readonly=True)
+    leds.fill((255, 0, 0)) # Red
+    print("MODE: Computer Write (Stuck Low)")
