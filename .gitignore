@@ -195,3 +195,4 @@ System Volume Information/
 
 # Sublime junk
 *.sublime-workspace
+*.sublime-project

@@ -1,1 +1,8 @@
-{"high_score": 27, "shadow": false, "head": true, "bg_idx": 0, "snake_idx": 0}
+{
+  "high_score": 27,
+  "shadow": false,
+  "head": true,
+  "bg_idx": 0,
+  "snake_idx": 0,
+  "speed": 5
+}

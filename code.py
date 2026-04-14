@@ -133,7 +133,7 @@ t = mark("Button Setup", t)
 #-------set up load and save settings-------
 score = 0
 def load_game_data():
-    global background_index, snakecolor, snake_shadow_status, snake_head_status, high_score
+    global background_index, snakecolor, snake_shadow_status, snake_head_status, high_score, speed_level
     try:
         with open("/settings.json", "r") as f:
             data = json.load(f)
@@ -143,6 +143,8 @@ def load_game_data():
             snakecolor = data.get("snake_idx", 0)
             snake_shadow_status = data.get("shadow", True)
             snake_head_status = data.get("head", True)
+            speed_level = data.get("speed", 0)
+
             print("Game Highscore:",high_score)
             print("Shadow Enabled:",snake_shadow_status)
             print("  Face Enabled:",snake_head_status)
@@ -158,7 +160,8 @@ def save_game_data():
         "bg_idx": background_index,
         "snake_idx": snakecolor,
         "shadow": snake_shadow_status,
-        "head": snake_head_status}
+        "head": snake_head_status,
+        "speed": speed_level}
     try:
         with open("/settings.json", "w") as f:
             json.dump(data, f)
@@ -659,7 +662,7 @@ load_game_data()
 old_background_index = background_index
 old_snake_shadow_status = snake_shadow_status
 old_snake_head_status = snake_head_status
-old_game_speed = game_speed
+old_speed_level = speed_level
 old_snakecolor = snakecolor
 game_speed = 0.65 * (speed_level ** -0.77)
 snake_color()
@@ -675,6 +678,7 @@ snakecolor_next = (snakecolor +1) % len(snakecolor_list)
 snakecolor_last = (snakecolor -1) % len(snakecolor_list)
 setting_next_option_text.text = backgrounds_list[next_background_index]
 setting_last_option_text.text = backgrounds_list[last_background_index]
+print(speed_level)
 t = mark("Game Settings", t)
 gc.collect()
 t = mark("Garbage Collection", t)
@@ -707,7 +711,7 @@ while pre_game:
                 root_group.append(setting_group)
                 gc.collect()
         if button.start:
-            if old_background_index != background_index or old_snake_shadow_status != snake_shadow_status or old_snake_head_status != snake_head_status or old_game_speed != game_speed or old_snakecolor != snakecolor:
+            if old_background_index != background_index or old_snake_shadow_status != snake_shadow_status or old_snake_head_status != snake_head_status or old_speed_level != speed_level or old_snakecolor != snakecolor:
                 save_game_data()
             start_pressed = True
             pre_game = False
